@@ -19,7 +19,7 @@ const PORT= process.env.PORT;
 // const app=express(); 
 
 const corsOptions = {
-    origin:'http://localhost:5173',// Allow only this origin
+    origin:['http://localhost:5173','https://collegiate-mart-frontend.onrender.com','https://collegiate-mart-backend.onrender.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],// Allowed methods
     credentials: true, // Allow cookies
 };  
