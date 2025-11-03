@@ -1,0 +1,77 @@
+# ------------------------------------------------------------
+# Docker Compose for Innovative (Client + Server)
+# ------------------------------------------------------------
+# What this does:
+# - Builds and runs two services: a Node/Express API (server) and a Vite React app (client)
+# - Wires each service to its own .env file
+# - Publishes ports so you can access the app via your browser
+#
+# Required files (not committed to git):
+# - .env               -> backend config (PORT=5000, MONGODB_URL, JWT_SECRET, MAIL_*)
+# - client/.env        -> frontend config (only VITE_* are exposed to the UI)
+#
+# Access:
+# - Client (Vite dev server): http://localhost:5173
+# - Server (Express API):     http://localhost:5000
+#
+# Notes:
+# - The client currently hits the API at http://localhost:5000/api (see client/src/services/apis.js)
+# - Vite exposes only env variables prefixed with VITE_, e.g. VITE_API_URL
+# - Do NOT commit .env files with real secrets to source control
+# - "depends_on" starts containers in order but doesn't wait for health. If you need health checks, add them explicitly.
+#
+# Common commands (PowerShell: run one command per line):
+# - Build images first time:   docker compose build
+# - Rebuild without cache:     docker compose build --no-cache
+# - Start in background:       docker compose up -d
+# - View all logs:             docker compose logs -f
+# - View one service logs:     docker compose logs -f server
+# - Stop and remove:           docker compose down
+# ------------------------------------------------------------
+version: "3.9" # Compose file format version
+
+services: # Define the app services/containers
+  server:
+    # Build the server image from the Dockerfile in server/
+    build:
+      # Build context is the project root because the server Dockerfile copies from root package.json
+      context: .
+      dockerfile: server/Dockerfile
+    # Load backend env vars (Express, Mongo, JWT, mail)
+    env_file:
+      - .env # Root .env contains PORT, MONGODB_URL, JWT_SECRET, MAIL_*
+    # Publish container port 5000 on host port 5000
+    ports:
+      - "5000:5000" # host:container
+    # Helpful for local dev; override the Dockerfile's production default
+    environment:
+      - NODE_ENV=development
+    # Put both services on the same network (so they can talk by name if needed)
+    networks:
+      - appnet
+
+  client:
+    # Build the client image (Vite dev server)
+    build:
+      context: ./client # Build context is the client directory
+    # Load frontend env vars. Only VITE_* variables are exposed to the browser.
+    env_file:
+      - client/.env
+    # Publish container port 5173 on host port 5173
+    ports:
+      - "5173:5173" # Vite dev server
+    # Ensure the API starts before the client; does not wait for health
+    depends_on:
+      - server
+    networks:
+      - appnet
+
+networks: # Define named networks
+  appnet: {} # Default bridge network for inter-service communication
+
+# Troubleshooting:
+# - If the client cannot reach the API, confirm the API is listening on PORT=5000 and CORS allows http://localhost:5173
+# - If env changes are not reflected, rebuild without cache: docker compose build --no-cache && docker compose up -d
+# - On Windows PowerShell, do not chain with &&; run commands on separate lines.
+
+
