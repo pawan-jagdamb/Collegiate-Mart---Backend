@@ -3,7 +3,14 @@ import { errorHandler, successHandler } from '../utils/error.js';
 import User from '../model/useModel.js'
 import bcrypt from 'bcrypt'; 
 import Listing from '../model/listingModel.js';
-export const test= async()=>{}
+export const test= async(req, res, next)=>{
+    console.log("app is running");
+    return res.status(200).json({
+        success:true,
+        message:"App running success fully",
+        
+       });
+}
 
 
 export const updateUserInfo= async(req, res, next)=>{

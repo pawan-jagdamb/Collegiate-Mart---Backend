@@ -30,6 +30,15 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app. use(cookieParser());
 console.log("first")
+app.post('/health', async (req, res) => {
+  console.log("health check");
+
+  return res.status(200).json({
+    message: "health checked",
+    success: true,
+  });
+});
+
 
 app.use('/api/v1',messageRoute)
  

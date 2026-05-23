@@ -76,6 +76,7 @@ export const signup= async(req,res,next)=>{
         console.log("1")
     const {userName, email, password,confirmPassword,otp}= req.body; 
     console.log('2');
+    console.log(userName, email);
     if(!userName||!email ||!password||!confirmPassword){
         next(errorHandler(400,"All Field are mendatory"));
     }
@@ -91,13 +92,15 @@ export const signup= async(req,res,next)=>{
     const existingUser=await User.findOne({email});
     console.log('3')
     const existingUserName= await User.findOne({userName})
-    console.log('4')
+    console.log('4');
+
 
     if(existingUser || existingUserName ){
       
         next(errorHandler(400,"User already Exist"));
 
     } 
+
     const recentOtp= await OTP.find({email}).sort({createdAt:-1}).limit(1);
     console.log(recentOtp);
     if(recentOtp.length===0){
